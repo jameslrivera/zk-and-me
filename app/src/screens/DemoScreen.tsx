@@ -1,0 +1,137 @@
+import { useEffect, useState } from 'react';
+import { fetchTokenRows, type TokenRow } from '../lib/chain';
+import { short, shortHex } from '../lib/field';
+import { SEGMENT_COUNT } from '../lib/genome';
+import { useSession, type Who } from '../lib/session';
+import { ErrorNotice, SegmentGrid, Swatch, type CellState } from '../components/ui';
+
+const POLL_MS = 4000;
+
+export function DemoScreen() {
+  const { ids, rt, indices, reset } = useSession();
+  const [rows, setRows] = useState<TokenRow[]>([]);
+  const epoch = rt.a.epoch ?? rt.b.epoch;
+
+  // The chain column reads real token accounts for both identities' segments.
+  useEffect(() => {
+    if (!ids || epoch === null) return;
+    let alive = true;
+    const load = async () => {
+      try {
+        const [ra, rb] = await Promise.all([
+          fetchTokenRows(ids.a.genome, indices, epoch),
+          fetchTokenRows(ids.b.genome, indices, epoch),
+        ]);
+        const byPda = new Map<string, TokenRow>();
+        for (const row of [...ra, ...rb]) if (row.holders.length) byPda.set(row.pda.toBase58(), row);
+        if (alive) setRows([...byPda.values()].sort((x, y) => y.holders.length - x.holders.length));
+      } catch { /* keep the last good view; the panes surface errors */ }
+    };
+    void load();
+    const t = setInterval(load, POLL_MS);
+    return () => { alive = false; clearInterval(t); };
+  }, [ids, epoch, indices]);
+
+  if (!ids) return null;
+  const hit = rows.find((r) => r.holders.length > 1);
+
+  return (
+    <main className="stack" style={{ gap: 24 }}>
+      <div className="demo-head">
+        <div className="stack" style={{ gap: 10 }}>
+          <div className="label">Two identities, one chain</div>
+          <h1 className="h1">A match, found by collision.</h1>
+        </div>
+        <div className="stack" style={{ gap: 12, alignItems: 'flex-end' }}>
+          <p className="note" style={{ maxWidth: 440, fontSize: 16 }}>
+            Both identities run in this tab to stand in for two devices. The chain only sees hashes.
+          </p>
+          <button type="button" className="pill" onClick={reset}>Reset demo</button>
+        </div>
+      </div>
+
+      <div className="demo-cols">
+        <Pane who="a" />
+
+        <section className="chain" aria-label="Solana devnet, public">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="big">Solana devnet</div>
+            <span className="public">Public</span>
+          </div>
+          {hit ? (
+            <div className="banner" role="status">
+              <span className="mono" style={{ fontWeight: 500 }}>segmentMatch</span>
+              <small>{hit.holders.length} holders on token {shortHex(hit.token)}{epoch !== null ? `, epoch ${epoch}` : ''}</small>
+            </div>
+          ) : (
+            <p className="note" style={{ color: 'var(--chain-muted)' }}>No shared tokens yet. Publish both sides.</p>
+          )}
+          <div className="label">Token accounts ({rows.length})</div>
+          <div className="token-list">
+            {rows.map((r) => (
+              <div key={r.pda.toBase58()} className={r.holders.length > 1 ? 'token is-match' : 'token'}>
+                <span>{shortHex(r.token)}</span>
+                <span className="holders">{r.holders.length} holder{r.holders.length > 1 ? 's · match' : ''}</span>
+              </div>
+            ))}
+          </div>
+          <p className="foot">Everything in this column is public. None of it is DNA.</p>
+        </section>
+
+        <Pane who="b" />
+      </div>
+    </main>
+  );
+}
+
+function Pane({ who }: { who: Who }) {
+  const { ids, rt, indices, fund, register, publish, allowContact } = useSession();
+  const id = ids![who];
+  const r = rt[who];
+  const matched = new Set(r.matches.flatMap((m) => m.indices));
+  const posted = new Set(r.posted);
+  const states: CellState[] = Array.from({ length: SEGMENT_COUNT }, (_, i) =>
+    matched.has(i) ? 'shared' : posted.has(i) ? 'published' : r.proving === i ? 'proving' : 'queued');
+  const m = r.matches[0];
+  const consent = m ? r.consent[m.counterparty.toBase58()] : undefined;
+  const name = who === 'a' ? 'Browser A · you' : 'Browser B · relative';
+
+  let action = null;
+  if (r.balance !== null && r.balance < 0.1 && !r.registered) {
+    action = <button type="button" className="btn btn-secondary btn-compact" onClick={() => fund(who)} disabled={!!r.busy}>{r.busy ?? 'Fund'}</button>;
+  } else if (r.registered === false) {
+    action = <button type="button" className="btn btn-primary btn-compact" onClick={() => register(who)} disabled={!!r.busy}>{r.busy ?? 'Register genome'}</button>;
+  } else if (r.registered && r.posted.length < indices.length) {
+    action = (
+      <button type="button" className="btn btn-primary btn-compact" onClick={() => publish(who)} disabled={!!r.busy}>
+        {r.busy === 'Publishing' ? `Publishing ${r.posted.length}/${indices.length}` : `Publish ${indices.length} segments`}
+      </button>
+    );
+  } else if (m && !consent?.me) {
+    action = <button type="button" className="btn btn-primary btn-compact" onClick={() => allowContact(who, m.counterparty)} disabled={!!r.busy}>{r.busy ?? 'Allow contact'}</button>;
+  } else if (consent?.me) {
+    action = <div className="notice info">{consent.them ? 'Contact unlocked — both allowed.' : 'You allowed contact. Waiting for them.'}</div>;
+  }
+
+  return (
+    <section className="card" aria-label={name}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12 }}>
+        <div className="big">{name}</div>
+        <div className="mono label">{short(id.keypair.publicKey.toBase58())}</div>
+      </div>
+      <SegmentGrid small states={states} label={`${name}: ${posted.size} segments published, ${matched.size} shared`} />
+      <div className="legend" style={{ flexDirection: 'column', gap: 10 }}>
+        <span><Swatch color="var(--green)" />Shared stretch — highlighted only on this device</span>
+        <span><Swatch color="var(--green-soft)" />Published as a token</span>
+        <span><Swatch color="var(--cell)" />Withheld</span>
+      </div>
+      <ErrorNotice>{r.error}</ErrorNotice>
+      <div className="footer-row" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+        <div className="row" style={{ padding: 0, border: 0 }}>
+          <span>Tokens posted</span><span className="mono">{r.posted.length} / {indices.length}</span>
+        </div>
+        {action}
+      </div>
+    </section>
+  );
+}
