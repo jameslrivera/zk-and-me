@@ -1,0 +1,5 @@
+node_modules
+dist
+.env
+public/circuits/*.wasm
+public/circuits/*.zkey
