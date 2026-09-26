@@ -1,0 +1,36 @@
+{
+  "name": "zk-and-me-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "sync-idl": "cp ../target/idl/zk_genome.json src/idl/zk_genome.json",
+    "sync-circuit": "cp ../build/segment_js/segment.wasm public/circuits/ && cp ../build/segment_final.zkey public/circuits/",
+    "register-lab": "tsx scripts/register-lab.ts",
+    "test:circuit": "tsx circuit-tests/witness.test.mts && tsx circuit-tests/prove.test.mts"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.31.1",
+    "@solana/web3.js": "^1.98.0",
+    "buffer": "^6.0.3",
+    "circomlibjs": "^0.1.7",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "snarkjs": "^0.7.5"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "tsx": "^4.16.0",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.0",
+    "vite-plugin-node-polyfills": "^0.22.0",
+    "circomlib": "^2.0.5",
+    "ffjavascript": "^0.3.1"
+  }
+}
