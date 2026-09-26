@@ -1,0 +1,23 @@
+[toolchain]
+anchor_version = "0.31.1"
+solana_version = "2.1.0"
+
+[features]
+resolution = true
+skip-lint = false
+
+[programs.devnet]
+zk_genome = "9q6kP67QT8gwSwszckPaU1b9wvV1qMjzLJg3C1NwRDtP"
+
+[programs.localnet]
+zk_genome = "9q6kP67QT8gwSwszckPaU1b9wvV1qMjzLJg3C1NwRDtP"
+
+[registry]
+url = "https://api.apr.dev"
+
+[provider]
+cluster = "localnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "npx mocha --import=tsx --exit -t 1000000 'tests/**/*.ts'"
