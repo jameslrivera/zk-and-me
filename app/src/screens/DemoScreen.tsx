@@ -33,8 +33,9 @@ export function DemoScreen() {
         // a pane only learns of a match on its own actions; catch the ones its relative created
         for (const who of ['a', 'b'] as const) {
           const me = ids[who].keypair.publicKey;
-          const inMatch = list.some((r) => r.holders.length > 1 && r.holders.some((h) => h.equals(me)));
-          if (inMatch && !rtRef.current[who].matches.length && !rtRef.current[who].busy) void refresh(who);
+          const known = new Set(rtRef.current[who].matches.flatMap((m) => m.accounts.map((a) => a.toBase58())));
+          const missing = list.some((r) => r.holders.length > 1 && r.holders.some((h) => h.equals(me)) && !known.has(r.pda.toBase58()));
+          if (missing && !rtRef.current[who].busy) void refresh(who);
         }
       } catch { /* keep the last good view; the panes surface errors */ }
     };

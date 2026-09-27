@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { short } from '../lib/field';
 import { partnerMatch, useSession } from '../lib/session';
 import { explorerAccount } from '../lib/chain';
@@ -7,6 +7,9 @@ import { Check, ErrorNotice } from '../components/ui';
 export function MatchScreen() {
   const { ids, rt, indices, allowContact, refresh } = useSession();
   const [declined, setDeclined] = useState(false);
+  const ready = !!ids;
+  // read the chain again whenever this screen opens, so matches a relative made since are included
+  useEffect(() => { if (ready) void refresh('a'); }, [ready, refresh]);
   if (!ids) return null;
   const r = rt.a;
   const m = partnerMatch(ids, rt, 'a');
@@ -52,6 +55,7 @@ export function MatchScreen() {
             {m.accounts.map((a, k) => (
               <a key={a.toBase58()} className="mono" href={explorerAccount(a)} target="_blank" rel="noreferrer">Segment {m.indices[k]} ↗</a>
             ))}
+            <button type="button" className="link" onClick={() => refresh('a')} disabled={!!r.busy}>Check again</button>
           </div>
         </div>
         <div className="twocol footer-row" style={{ alignItems: 'start' }}>

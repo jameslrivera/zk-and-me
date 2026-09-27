@@ -33,6 +33,12 @@ export function GenomeScreen() {
         {r.busy ?? 'Register genome'}<small>Saves your genome's root on Solana</small>
       </button>
     );
+  } else if (r.registered && r.matches.length && r.posted.length >= indices.length) {
+    action = (
+      <a className="btn btn-primary" href="#match">
+        View your match<small>{r.matches[0].indices.length} shared segments found on Solana</small>
+      </a>
+    );
   } else if (r.registered) {
     action = (
       <a className="btn btn-primary" href="#publish">

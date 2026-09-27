@@ -172,3 +172,4 @@ a.token { color: inherit; }
 a.token:hover, a.banner:hover { filter: brightness(1.15); }
 .explorer-links { display: flex; flex-wrap: wrap; gap: 14px; }
 .explorer-links a { color: var(--green); }
+.explorer-links .link { background: none; border: 0; padding: 0; font: inherit; color: var(--muted); text-decoration: underline; cursor: pointer; }
