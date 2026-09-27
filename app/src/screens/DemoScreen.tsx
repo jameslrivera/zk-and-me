@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { explorerAccount, fetchTokenRows, type TokenRow } from '../lib/chain';
+import { FUND_SOL, explorerAccount, fetchTokenRows, type TokenRow } from '../lib/chain';
 import { short, shortHex } from '../lib/field';
 import { SEGMENT_COUNT } from '../lib/genome';
 import { partnerMatch, useSession, type Who } from '../lib/session';
@@ -103,7 +103,7 @@ function Pane({ who }: { who: Who }) {
   if (r.registered && !r.rootMatches) {
     action = <div className="notice info">A different genome is registered. Upload the same file again, or reset.</div>;
   } else if (r.balance !== null && r.balance < 0.1 && !r.registered) {
-    action = <button type="button" className="btn btn-secondary btn-compact" onClick={() => fund(who)} disabled={!!r.busy}>{r.busy ?? 'Fund'}</button>;
+    action = <button type="button" className="btn btn-secondary btn-compact" onClick={() => fund(who)} disabled={!!r.busy}>{r.busy ?? `Create account (${FUND_SOL} SOL)`}</button>;
   } else if (r.registered === false) {
     action = <button type="button" className="btn btn-primary btn-compact" onClick={() => register(who)} disabled={!!r.busy}>{r.busy ?? 'Register genome'}</button>;
   } else if (r.registered && r.posted.length < indices.length) {

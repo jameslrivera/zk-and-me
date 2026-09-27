@@ -1,4 +1,4 @@
-import { explorerAccount, genomePda } from '../lib/chain';
+import { FUND_SOL, explorerAccount, genomePda } from '../lib/chain';
 import { short, shortHex, toBE32 } from '../lib/field';
 import { SEGMENT_COUNT, WINDOW } from '../lib/genome';
 import { useSession } from '../lib/session';
@@ -24,7 +24,7 @@ export function GenomeScreen() {
   } else if (r.balance !== null && r.balance < MIN_SOL && !r.registered) {
     action = (
       <button type="button" className="btn btn-primary" onClick={() => fund('a')} disabled={!!r.busy}>
-        {r.busy ?? 'Fund this account'}<small>Devnet SOL for fees</small>
+        {r.busy ?? 'Create account'}<small>Adds {FUND_SOL} test SOL to pay Solana fees</small>
       </button>
     );
   } else if (r.registered === false) {
@@ -72,7 +72,7 @@ export function GenomeScreen() {
               ? <span className="chip ok"><Check /> Signature valid</span>
               : <span className="chip bad">Signature invalid</span>}
           </div>
-          <div><div className="label">Signed by</div><div className="big">Demo lab · mock key</div></div>
+          <div><div className="label">Signed by</div><div className="big">Demo DNA Lab</div><div className="note">Test signing key, used for this demo</div></div>
           <div><div className="label">Genome commitment (Merkle root)</div><div className="mono">{shortHex(root)}</div></div>
         </div>
 

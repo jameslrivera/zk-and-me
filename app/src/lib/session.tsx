@@ -134,7 +134,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     try { await fn(id); } catch (e) { patch(who, { error: explain(e) }); } finally { patch(who, { busy: null }); }
   }, [patch]);
 
-  const fund = useCallback((who: Who) => run(who, 'Funding', async (id) => {
+  const fund = useCallback((who: Who) => run(who, 'Creating account', async (id) => {
     const balance = await fundTx(id.keypair.publicKey);
     patch(who, { balance });
   }), [run, patch]);

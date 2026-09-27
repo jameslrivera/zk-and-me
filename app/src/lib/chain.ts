@@ -168,7 +168,9 @@ export async function allowContact(id: Identity, counterparty: PublicKey): Promi
 }
 
 /** Tops a burner up from the devnet funder if configured, otherwise asks the faucet. */
-export async function fund(pubkey: PublicKey, sol = 0.3): Promise<number> {
+export const FUND_SOL = 0.3;
+
+export async function fund(pubkey: PublicKey, sol = FUND_SOL): Promise<number> {
   const lamports = Math.round(sol * LAMPORTS_PER_SOL);
   if (config.funderSecret) {
     const funder = Keypair.fromSecretKey(Uint8Array.from(JSON.parse(config.funderSecret)));
@@ -203,7 +205,7 @@ export function explain(err: unknown): string {
   const code: string | undefined = e?.error?.errorCode?.code;
   if (code && PROGRAM_ERRORS[code]) return PROGRAM_ERRORS[code];
   const text = String(e?.message ?? e);
-  if (/insufficient (funds|lamports)|debit an account/i.test(text)) return 'Not enough devnet SOL. Fund this account and try again.';
+  if (/insufficient (funds|lamports)|debit an account/i.test(text)) return 'Not enough test SOL. Press Create account again, then retry.';
   if (/429|too many requests|rate limit/i.test(text)) return 'The RPC endpoint is rate-limiting. Wait a moment, or set VITE_RPC_URL to a provider endpoint.';
   if (/airdrop/i.test(text)) return 'The devnet faucet refused the airdrop. Use faucet.solana.com or set VITE_DEMO_FUNDER_SECRET.';
   if (/circuits\/segment/i.test(text) || /Failed to fetch/i.test(text)) return 'Prover files are missing. Run `npm run sync-circuit` after compiling the circuit.';
