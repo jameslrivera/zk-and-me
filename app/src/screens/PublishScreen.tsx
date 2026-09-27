@@ -32,7 +32,7 @@ export function PublishScreen() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 16, flexWrap: 'wrap' }}>
             <div className="big">{done} of {total} posted</div>
             <div className="label" style={{ fontSize: 15 }}>
-              {r.busy === 'Publishing' ? 'Proofs run in the background — keep this tab open' : complete ? 'All selected segments are on-chain' : 'Ready to publish'}
+              {r.busy === 'Publishing' ? 'Keep this tab open while proofs run' : complete ? 'All selected segments are on-chain' : 'Ready to publish'}
             </div>
           </div>
           <div className="progress" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={done}>
@@ -54,10 +54,10 @@ export function PublishScreen() {
         <div className="card" style={{ gap: 12 }}>
           <div className="label">Transactions</div>
           <div>
-            {r.log.length === 0 && <p className="note">Nothing posted yet. Each segment is proved here, then posted as one transaction.</p>}
+            {r.log.length === 0 && <p className="note">Nothing posted yet.</p>}
             {r.log.slice(0, 7).map((l) => (
               <div className="tx" key={`${l.index}-${l.status}-${l.sig ?? ''}`}>
-                <span className="mono" style={{ color: 'var(--muted)' }}>#{String(l.index + 1).padStart(3, '0')}</span>
+                <span className="mono" style={{ color: 'var(--muted)' }}>#{String(l.index).padStart(3, '0')}</span>
                 <span className="mono">post_token</span>
                 <span className="mono" style={{ color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {l.sig ? <a href={explorerTx(l.sig)} target="_blank" rel="noreferrer">{short(l.sig)}</a> : l.status === 'proving' ? 'proving in browser…' : l.error}
@@ -68,7 +68,7 @@ export function PublishScreen() {
               </div>
             ))}
           </div>
-          <p className="note">Each proof shows a token came from your attested genome. The token is a hash; the segment behind it never leaves this page.</p>
+          <p className="note">Each transaction is one token and its proof. Click one to see it on Solana Explorer.</p>
         </div>
 
         <ErrorNotice>{r.error}</ErrorNotice>
@@ -78,7 +78,7 @@ export function PublishScreen() {
               <span style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                 <span className="dot" style={{ width: 10, height: 10, borderRadius: 999, background: '#3FBF92' }} />
                 <span style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                  A shared segment was found<small>Review it — nothing is shared until you choose</small>
+                  A shared segment was found<small>Nothing is shared until you choose</small>
                 </span>
               </span>
               <Arrow />

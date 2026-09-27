@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { short } from '../lib/field';
 import { partnerMatch, useSession } from '../lib/session';
+import { explorerAccount } from '../lib/chain';
 import { Check, ErrorNotice } from '../components/ui';
 
 export function MatchScreen() {
@@ -43,7 +44,15 @@ export function MatchScreen() {
         <div className="stats">
           <div className="stat accent"><span>Shared segments</span><span className="v">{m.indices.length} of {indices.length}</span></div>
           <div className="stat"><span className="label">Their account</span><span className="v mono">{short(them)}</span></div>
-          <div className="stat"><span className="label">Segment positions</span><span className="v mono">{m.indices.map((i) => i + 1).join(' · ')}</span></div>
+          <div className="stat"><span className="label">Segment positions</span><span className="v mono">{m.indices.join(' · ')}</span></div>
+        </div>
+        <div className="stack" style={{ gap: 8 }}>
+          <div className="label">On Solana Explorer</div>
+          <div className="explorer-links">
+            {m.accounts.map((a, k) => (
+              <a key={a.toBase58()} className="mono" href={explorerAccount(a)} target="_blank" rel="noreferrer">Segment {m.indices[k]} ↗</a>
+            ))}
+          </div>
         </div>
         <div className="twocol footer-row" style={{ alignItems: 'start' }}>
           <div className="stack" style={{ gap: 14 }}>
@@ -58,7 +67,6 @@ export function MatchScreen() {
             <div style={{ fontWeight: 500 }}>Never leaves your device</div>
             <ul>
               <li>Your markers, in any segment</li>
-              <li>Your name and contact details, until you both allow it</li>
               <li>Anything that reconstructs your genome</li>
             </ul>
           </div>
@@ -76,10 +84,10 @@ export function MatchScreen() {
         </div>
         <p className="note" style={{ fontSize: 15 }}>
           {unlocked
-            ? 'You both allowed contact. In this prototype that is recorded on-chain; an encrypted channel between you is the next piece to build.'
+            ? 'You both allowed contact. It is recorded on Solana.'
             : declined
               ? 'Nothing was sent. You can allow contact later.'
-              : "Contact opens only when both of you allow it. Choosing not now sends nothing, and they aren't told."}
+              : "Contact opens only when both of you allow it."}
         </p>
         <ErrorNotice>{r.error}</ErrorNotice>
         {!consent.me && (

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { fetchTokenRows, type TokenRow } from '../lib/chain';
+import { explorerAccount, fetchTokenRows, type TokenRow } from '../lib/chain';
 import { short, shortHex } from '../lib/field';
 import { SEGMENT_COUNT } from '../lib/genome';
 import { partnerMatch, useSession, type Who } from '../lib/session';
@@ -49,16 +49,8 @@ export function DemoScreen() {
   return (
     <main className="stack" style={{ gap: 24 }}>
       <div className="demo-head">
-        <div className="stack" style={{ gap: 10 }}>
-          <div className="label">Two identities, one chain</div>
-          <h1 className="h1">A match, found by collision.</h1>
-        </div>
-        <div className="stack" style={{ gap: 12, alignItems: 'flex-end' }}>
-          <p className="note" style={{ maxWidth: 440, fontSize: 16 }}>
-            Both identities run in this tab to stand in for two devices. The chain only sees hashes.
-          </p>
-          <button type="button" className="pill" onClick={reset}>Reset demo</button>
-        </div>
+        <h1 className="h1">A match, found by collision.</h1>
+        <button type="button" className="pill" onClick={reset}>Reset demo</button>
       </div>
 
       <div className="demo-cols">
@@ -70,23 +62,23 @@ export function DemoScreen() {
             <span className="public">Public</span>
           </div>
           {hit ? (
-            <div className="banner" role="status">
-              <span className="mono" style={{ fontWeight: 500 }}>segmentMatch</span>
+            <a className="banner" role="status" href={explorerAccount(hit.pda)} target="_blank" rel="noreferrer">
+              <span className="mono" style={{ fontWeight: 500 }}>segmentMatch ↗</span>
               <small>{hit.holders.length} holders on token {shortHex(hit.token)}{epoch !== null ? `, epoch ${epoch}` : ''}</small>
-            </div>
+            </a>
           ) : (
-            <p className="note" style={{ color: 'var(--chain-muted)' }}>No shared tokens yet. Publish both sides.</p>
+            <p className="note" style={{ color: 'var(--chain-muted)' }}>No matches yet.</p>
           )}
           <div className="label">Token accounts ({rows.length})</div>
           <div className="token-list">
             {rows.map((r) => (
-              <div key={r.pda.toBase58()} className={r.holders.length > 1 ? 'token is-match' : 'token'}>
-                <span>{shortHex(r.token)}</span>
+              <a key={r.pda.toBase58()} className={r.holders.length > 1 ? 'token is-match' : 'token'} href={explorerAccount(r.pda)} target="_blank" rel="noreferrer" title="Open on Solana Explorer">
+                <span>{shortHex(r.token)} ↗</span>
                 <span className="holders">{r.holders.length} holder{r.holders.length > 1 ? 's · match' : ''}</span>
-              </div>
+              </a>
             ))}
           </div>
-          <p className="foot">Everything in this column is public. None of it is DNA.</p>
+          <p className="foot">Public on Solana. No DNA here. Click a token to open it on Explorer.</p>
         </section>
 
         <Pane who="b" />
@@ -109,7 +101,7 @@ function Pane({ who }: { who: Who }) {
 
   let action = null;
   if (r.registered && !r.rootMatches) {
-    action = <div className="notice info">This account registered a different genome. Upload the same DNA file again, or reset the demo.</div>;
+    action = <div className="notice info">A different genome is registered. Upload the same file again, or reset.</div>;
   } else if (r.balance !== null && r.balance < 0.1 && !r.registered) {
     action = <button type="button" className="btn btn-secondary btn-compact" onClick={() => fund(who)} disabled={!!r.busy}>{r.busy ?? 'Fund'}</button>;
   } else if (r.registered === false) {
@@ -123,7 +115,7 @@ function Pane({ who }: { who: Who }) {
   } else if (m && !consent?.me) {
     action = <button type="button" className="btn btn-primary btn-compact" onClick={() => allowContact(who, m.counterparty)} disabled={!!r.busy}>{r.busy ?? 'Allow contact'}</button>;
   } else if (consent?.me) {
-    action = <div className="notice info">{consent.them ? 'Contact unlocked — both allowed.' : 'You allowed contact. Waiting for them.'}</div>;
+    action = <div className="notice info">{consent.them ? 'Contact unlocked.' : 'You allowed contact. Waiting for them.'}</div>;
   }
 
   return (
@@ -135,9 +127,9 @@ function Pane({ who }: { who: Who }) {
       <DnaSource who={who} compact />
       <SegmentGrid small states={states} label={`${name}: ${posted.size} segments published, ${matched.size} shared`} />
       <div className="legend" style={{ flexDirection: 'column', gap: 10 }}>
-        <span><Swatch color="var(--green)" />Shared stretch — highlighted only on this device</span>
-        <span><Swatch color="var(--green-soft)" />Published as a token</span>
-        <span><Swatch color="var(--cell)" />Withheld</span>
+        <span><Swatch color="var(--green)" />Shared segments</span>
+        <span><Swatch color="var(--green-soft)" />Published</span>
+        <span><Swatch color="var(--cell)" />Not published</span>
       </div>
       <ErrorNotice>{r.error}</ErrorNotice>
       <div className="footer-row" style={{ flexDirection: 'column', alignItems: 'stretch' }}>

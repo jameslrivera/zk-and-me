@@ -1,4 +1,4 @@
-import { genomePda } from '../lib/chain';
+import { explorerAccount, genomePda } from '../lib/chain';
 import { short, shortHex, toBE32 } from '../lib/field';
 import { SEGMENT_COUNT, WINDOW } from '../lib/genome';
 import { useSession } from '../lib/session';
@@ -24,13 +24,13 @@ export function GenomeScreen() {
   } else if (r.balance !== null && r.balance < MIN_SOL && !r.registered) {
     action = (
       <button type="button" className="btn btn-primary" onClick={() => fund('a')} disabled={!!r.busy}>
-        {r.busy ?? 'Fund this account'}<small>Devnet SOL for fees and account rent</small>
+        {r.busy ?? 'Fund this account'}<small>Devnet SOL for fees</small>
       </button>
     );
   } else if (r.registered === false) {
     action = (
       <button type="button" className="btn btn-primary" onClick={() => register('a')} disabled={!!r.busy}>
-        {r.busy ?? 'Register genome'}<small>Stores your 32-byte root on Solana</small>
+        {r.busy ?? 'Register genome'}<small>Saves your genome's root on Solana</small>
       </button>
     );
   } else if (r.registered) {
@@ -50,14 +50,13 @@ export function GenomeScreen() {
           <div className="label">On this device</div>
           <h1 className="h1">Your genome stays here.</h1>
           <p className="lead">
-            {(SEGMENT_COUNT * WINDOW).toLocaleString()} markers in {SEGMENT_COUNT} segments, held in this browser.
-            Nothing on this card leaves it — not to us, not to the chain.
+            {(SEGMENT_COUNT * WINDOW).toLocaleString()} markers in {SEGMENT_COUNT} segments. None of it leaves this browser.
           </p>
         </div>
         <SegmentGrid states={Array(SEGMENT_COUNT).fill('queued')} label="All 128 segments withheld on this device" />
         <div className="footer-row">
           <span className="label" style={{ display: 'inline-flex', gap: 10, alignItems: 'center', fontSize: 15 }}>
-            <Lock /> Withheld — held in memory for this session only
+            <Lock /> Kept in memory only
           </span>
           <span className="label">1 segment = {WINDOW} markers</span>
         </div>
@@ -80,12 +79,14 @@ export function GenomeScreen() {
         <div className="card">
           <div className="label">On Solana devnet</div>
           <div className="rows">
-            <div className="row"><span>Profile account</span><span className="mono">{short(genomePda(me.keypair.publicKey).toBase58())}</span></div>
+            <div className="row"><span>Profile account</span>{r.registered
+              ? <a className="mono" href={explorerAccount(genomePda(me.keypair.publicKey))} target="_blank" rel="noreferrer">{short(genomePda(me.keypair.publicKey).toBase58())} ↗</a>
+              : <span className="mono">{short(genomePda(me.keypair.publicKey).toBase58())}</span>}</div>
             <div className="row"><span>Registered root</span><span className="mono">{r.registered ? shortHex(root) : 'Not registered'}</span></div>
             <div className="row"><span>Balance</span><span className="mono">{r.balance === null ? '—' : `${r.balance.toFixed(3)} SOL`}</span></div>
             <div className="row"><span>Tokens published</span><span className="mono">{r.posted.length} of {indices.length}</span></div>
           </div>
-          <p className="note">The chain holds a 32-byte root. It can't be turned back into your markers.</p>
+          <p className="note">Only this 32-byte root is stored on Solana.</p>
         </div>
 
         <ErrorNotice>{r.error}</ErrorNotice>

@@ -98,7 +98,7 @@ export async function fetchTokenRows(genome: Genome, indices: number[], epoch: n
   }));
 }
 
-export interface Match { counterparty: PublicKey; indices: number[] }
+export interface Match { counterparty: PublicKey; indices: number[]; accounts: PublicKey[] }
 
 /** Groups this identity's matched segments by the other account on each token. */
 export function matchesFrom(rows: TokenRow[], me: PublicKey): Match[] {
@@ -108,8 +108,9 @@ export function matchesFrom(rows: TokenRow[], me: PublicKey): Match[] {
     for (const h of row.holders) {
       if (h.equals(me)) continue;
       const key = h.toBase58();
-      const m = byParty.get(key) ?? { counterparty: h, indices: [] };
+      const m = byParty.get(key) ?? { counterparty: h, indices: [], accounts: [] };
       m.indices.push(row.index);
+      m.accounts.push(row.pda);
       byParty.set(key, m);
     }
   }
@@ -181,6 +182,7 @@ export async function fund(pubkey: PublicKey, sol = 0.3): Promise<number> {
 }
 
 export const explorerTx = (sig: string) => `https://explorer.solana.com/tx/${sig}?cluster=devnet`;
+export const explorerAccount = (key: PublicKey) => `https://explorer.solana.com/address/${key.toBase58()}/anchor-account?cluster=devnet`;
 
 /* ---------- errors, in the interface's voice ---------- */
 

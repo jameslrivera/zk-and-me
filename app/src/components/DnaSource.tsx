@@ -29,7 +29,7 @@ export function DnaSource({ who, compact }: { who: Who; compact?: boolean }) {
       <div className="dna-source-head">
         <div>
           <div className="label">DNA source</div>
-          <div className={compact ? 'mono' : 'big'}>{r.source ?? 'Generated in this browser'}</div>
+          <div className={compact ? 'mono' : 'big'}>{r.source ?? 'Demo genome'}</div>
         </div>
         {!locked && (
           <>
@@ -41,17 +41,17 @@ export function DnaSource({ who, compact }: { who: Who; compact?: boolean }) {
         )}
       </div>
       {locked ? (
-        <p className="note">Registered on Solana. Reset the demo to use a different file.</p>
+        <p className="note">Registered. Reset the demo to use a different file.</p>
       ) : (
         <>
           <p className="note">
-            Read in this browser, never uploaded. Sample files:{' '}
+            Demo files:{' '}
             {samples.map((s, i) => (
               <span key={s.file}>{i > 0 && ' · '}<button type="button" className="link" onClick={() => save(s.file, s.text)}>{s.name}</button></span>
             ))}
           </p>
           {!compact && (
-            <p className="note">Synthetic files only. Tokens are published on a public chain, so never use a real DNA file.</p>
+            <p className="note">Use the demo files, not real DNA.</p>
           )}
         </>
       )}

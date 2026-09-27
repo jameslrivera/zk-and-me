@@ -28,7 +28,7 @@ export function App() {
       {bootError ? (
         <div className="notice error" role="alert">{bootError}</div>
       ) : !ready ? (
-        <p className="note" role="status">Building your genome in this browser…</p>
+        <p className="note" role="status">Loading…</p>
       ) : route === 'publish' ? <PublishScreen />
         : route === 'match' ? <MatchScreen />
         : route === 'demo' ? <DemoScreen />
