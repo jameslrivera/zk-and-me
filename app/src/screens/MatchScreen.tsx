@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { short } from '../lib/field';
-import { useSession } from '../lib/session';
+import { partnerMatch, useSession } from '../lib/session';
 import { Check, ErrorNotice } from '../components/ui';
 
 export function MatchScreen() {
@@ -8,7 +8,7 @@ export function MatchScreen() {
   const [declined, setDeclined] = useState(false);
   if (!ids) return null;
   const r = rt.a;
-  const m = r.matches[0];
+  const m = partnerMatch(ids, rt, 'a');
 
   if (!m) {
     return (

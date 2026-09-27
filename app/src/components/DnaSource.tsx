@@ -1,15 +1,19 @@
-import { useRef } from 'react';
+import { useMemo, useRef } from 'react';
+import { sessionSamples } from '../lib/dnaFile';
 import { useSession, type Who } from '../lib/session';
 
-const SAMPLES = [
-  ['cousin-a.txt', 'Cousin A'],
-  ['cousin-b.txt', 'Cousin B'],
-  ['stranger.txt', 'Stranger'],
-];
+// save generated text as a file
+function save(file: string, text: string) {
+  const url = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
+  const a = Object.assign(document.createElement('a'), { href: url, download: file });
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 
 // where this identity's genome came from, with upload and sample files
 export function DnaSource({ who, compact }: { who: Who; compact?: boolean }) {
-  const { rt, loadFile } = useSession();
+  const { rt, loadFile, seed } = useSession();
+  const samples = useMemo(() => (seed === null ? [] : sessionSamples(seed)), [seed]);
   const input = useRef<HTMLInputElement>(null);
   const r = rt[who];
   const locked = r.registered === true && r.rootMatches;
@@ -42,8 +46,8 @@ export function DnaSource({ who, compact }: { who: Who; compact?: boolean }) {
         <>
           <p className="note">
             Read in this browser, never uploaded. Sample files:{' '}
-            {SAMPLES.map(([file, name], i) => (
-              <span key={file}>{i > 0 && ' · '}<a href={`/sample-dna/${file}`} download>{name}</a></span>
+            {samples.map((s, i) => (
+              <span key={s.file}>{i > 0 && ' · '}<button type="button" className="link" onClick={() => save(s.file, s.text)}>{s.name}</button></span>
             ))}
           </p>
           {!compact && (

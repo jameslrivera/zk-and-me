@@ -1,6 +1,6 @@
 import * as snarkjs from 'snarkjs';
 import fs from 'node:fs';
-import { DnaFileError, formatDnaFile, parseDnaFile } from '../src/lib/dnaFile.ts';
+import { DnaFileError, formatDnaFile, parseDnaFile, sessionSamples } from '../src/lib/dnaFile.ts';
 import { buildGenome, circuitInput, deriveToken, SEGMENT_COUNT, SHARED_SEGMENTS } from '../src/lib/genome.ts';
 
 const WASM = new URL('../../build/segment_js/segment.wasm', import.meta.url).pathname;
@@ -28,6 +28,14 @@ check('circuit accepts a segment from an uploaded file', witnessOk);
 const rejects = (text: string) => { try { parseDnaFile(text); return false; } catch (e) { return e instanceof DnaFileError; } };
 check('a file with none of the demo markers is rejected', rejects('rs4477212\t1\t82154\tAA\nrs3094315\t1\t752566\tAG\n'));
 check('an incomplete file is rejected', rejects(read('cousin-a.txt').split('\n').slice(0, 500).join('\n')));
+
+const visit1 = await Promise.all(sessionSamples(123456).map(async (f) => tokens(await buildGenome(parseDnaFile(f.text).markers))));
+const visit2 = await Promise.all(sessionSamples(987654).map(async (f) => tokens(await buildGenome(parseDnaFile(f.text).markers))));
+const shared1 = visit1[0].map((t, i) => (t === visit1[1][i] ? i : -1)).filter((i) => i >= 0);
+check(`per-visitor cousins share exactly segments ${SHARED_SEGMENTS.join(', ')}`, JSON.stringify(shared1) === JSON.stringify(SHARED_SEGMENTS));
+const all1 = new Set(visit1.flat());
+check('two visitors never produce the same token', visit2.flat().every((t) => !all1.has(t)));
+check('per-visitor files never collide with the fixed repo samples', [ta, tb, ts].flat().every((t) => !all1.has(t)));
 
 console.log(`\n${results.filter(Boolean).length}/${results.length} passed`);
 process.exit(results.every(Boolean) ? 0 : 1);

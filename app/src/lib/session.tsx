@@ -45,6 +45,7 @@ interface SessionApi {
   publish: (who: Who) => Promise<void>;
   allowContact: (who: Who, counterparty: PublicKey) => Promise<void>;
   loadFile: (who: Who, file: File) => Promise<void>;
+  seed: number | null;
   reset: () => void;
 }
 
@@ -71,6 +72,7 @@ function loadOrCreate(): { seed: number; a: Keypair; b: Keypair } {
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [ids, setIds] = useState<Record<Who, Identity> | null>(null);
   const [bootError, setBootError] = useState<string | null>(null);
+  const [seed, setSeed] = useState<number | null>(null);
   const [rt, setRt] = useState<Record<Who, Runtime>>({ a: emptyRuntime(), b: emptyRuntime() });
   const idsRef = useRef(ids);
   idsRef.current = ids;
@@ -84,6 +86,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     (async () => {
       try {
         const s = loadOrCreate();
+        setSeed(s.seed);
         const [ma, mb] = syntheticRelatives(s.seed);
         const [ga, gb] = await Promise.all([buildGenome(ma), buildGenome(mb)]);
         setIds({ a: makeIdentity('You', s.a, ga), b: makeIdentity('Relative', s.b, gb) });
@@ -197,8 +200,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     window.location.reload();
   }, []);
 
-  const api: SessionApi = { ready: !!ids, bootError, ids, rt, indices, refresh, fund, register, publish, allowContact, loadFile, reset };
+  const api: SessionApi = { ready: !!ids, bootError, ids, rt, indices, refresh, fund, register, publish, allowContact, loadFile, seed, reset };
   return <Ctx.Provider value={api}>{children}</Ctx.Provider>;
+}
+
+// the match with the other identity in this tab, if there is one
+export function partnerMatch(ids: Record<Who, Identity>, rt: Record<Who, Runtime>, who: Who): Match | undefined {
+  const partner = ids[who === 'a' ? 'b' : 'a'].keypair.publicKey;
+  return rt[who].matches.find((m) => m.counterparty.equals(partner)) ?? rt[who].matches[0];
 }
 
 export function useSession(): SessionApi {

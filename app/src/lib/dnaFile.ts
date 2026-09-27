@@ -1,4 +1,4 @@
-import { SEGMENT_COUNT, WINDOW } from './genome';
+import { SEGMENT_COUNT, SHARED_SEGMENTS, WINDOW, syntheticRelatives } from './genome';
 
 export const MARKER_COUNT = SEGMENT_COUNT * WINDOW;
 const BASES = ['A', 'C', 'G', 'T'];
@@ -89,4 +89,19 @@ export function formatDnaFile(markers: number[], profile: string): string {
     return `${m.rsid}\t${m.chromosome}\t${m.position}\t${g}`;
   });
   return [...head, ...rows, ''].join('\n');
+}
+
+export interface SampleFile { file: string; name: string; text: string }
+
+// a cousin pair and a stranger unique to one browser session, so visitors never share tokens
+export function sessionSamples(seed: number): SampleFile[] {
+  const tag = seed.toString(36).slice(-4);
+  const shared = `${SHARED_SEGMENTS[0]}-${SHARED_SEGMENTS[SHARED_SEGMENTS.length - 1]}`;
+  const [a, b] = syntheticRelatives((seed ^ 0x9e3779b9) >>> 0);
+  const [stranger] = syntheticRelatives((seed ^ 0x85ebca6b) >>> 0);
+  return [
+    { file: `cousin-a-${tag}.txt`, name: 'Cousin A', text: formatDnaFile(a, `Cousin A (session ${tag}). Shares segments ${shared} with Cousin B.`) },
+    { file: `cousin-b-${tag}.txt`, name: 'Cousin B', text: formatDnaFile(b, `Cousin B (session ${tag}). Shares segments ${shared} with Cousin A.`) },
+    { file: `stranger-${tag}.txt`, name: 'Stranger', text: formatDnaFile(stranger, `Stranger (session ${tag}). Not related to either cousin.`) },
+  ];
 }

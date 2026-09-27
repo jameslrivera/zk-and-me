@@ -2,11 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { fetchTokenRows, type TokenRow } from '../lib/chain';
 import { short, shortHex } from '../lib/field';
 import { SEGMENT_COUNT } from '../lib/genome';
-import { useSession, type Who } from '../lib/session';
+import { partnerMatch, useSession, type Who } from '../lib/session';
 import { ErrorNotice, SegmentGrid, Swatch, type CellState } from '../components/ui';
 import { DnaSource } from '../components/DnaSource';
 
-const POLL_MS = 4000;
+const POLL_MS = 8000;
 
 export function DemoScreen() {
   const { ids, rt, indices, reset, refresh } = useSession();
@@ -103,7 +103,7 @@ function Pane({ who }: { who: Who }) {
   const posted = new Set(r.posted);
   const states: CellState[] = Array.from({ length: SEGMENT_COUNT }, (_, i) =>
     matched.has(i) ? 'shared' : posted.has(i) ? 'published' : r.proving === i ? 'proving' : 'queued');
-  const m = r.matches[0];
+  const m = partnerMatch(ids!, rt, who);
   const consent = m ? r.consent[m.counterparty.toBase58()] : undefined;
   const name = who === 'a' ? 'Browser A · you' : 'Browser B · relative';
 

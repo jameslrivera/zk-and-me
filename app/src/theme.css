@@ -166,3 +166,4 @@ button { font-family: inherit; }
 .dna-source .note { margin: 0; }
 .dna-source a { color: var(--green); }
 .dna-source.compact { padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.dna-source .link { background: none; border: 0; padding: 0; font: inherit; color: var(--green); text-decoration: underline; cursor: pointer; }
