@@ -46,7 +46,7 @@ export function MatchScreen() {
         <div className="stats">
           <div className="stat accent"><span>Shared segments</span><span className="v">{m.indices.length} of {indices.length}</span></div>
           <div className="stat"><span className="label">Their account</span><span className="v mono">{short(them)}</span></div>
-          <div className="stat"><span className="label">Segment positions</span><span className="v mono">{m.indices.join(' · ')}</span></div>
+          <div className="stat"><span className="label">Segment positions</span><span className="v mono">{m.indices.join(', ')}</span></div>
         </div>
         <div className="stack" style={{ gap: 8 }}>
           <div className="label">On Solana Explorer</div>
