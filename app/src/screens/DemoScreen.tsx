@@ -1,15 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { fetchTokenRows, type TokenRow } from '../lib/chain';
 import { short, shortHex } from '../lib/field';
 import { SEGMENT_COUNT } from '../lib/genome';
 import { useSession, type Who } from '../lib/session';
 import { ErrorNotice, SegmentGrid, Swatch, type CellState } from '../components/ui';
+import { DnaSource } from '../components/DnaSource';
 
 const POLL_MS = 4000;
 
 export function DemoScreen() {
-  const { ids, rt, indices, reset } = useSession();
+  const { ids, rt, indices, reset, refresh } = useSession();
   const [rows, setRows] = useState<TokenRow[]>([]);
+  const rtRef = useRef(rt);
+  rtRef.current = rt;
   const epoch = rt.a.epoch ?? rt.b.epoch;
 
   // The chain column reads real token accounts for both identities' segments.
@@ -24,13 +27,21 @@ export function DemoScreen() {
         ]);
         const byPda = new Map<string, TokenRow>();
         for (const row of [...ra, ...rb]) if (row.holders.length) byPda.set(row.pda.toBase58(), row);
-        if (alive) setRows([...byPda.values()].sort((x, y) => y.holders.length - x.holders.length));
+        if (!alive) return;
+        const list = [...byPda.values()].sort((x, y) => y.holders.length - x.holders.length);
+        setRows(list);
+        // a pane only learns of a match on its own actions; catch the ones its relative created
+        for (const who of ['a', 'b'] as const) {
+          const me = ids[who].keypair.publicKey;
+          const inMatch = list.some((r) => r.holders.length > 1 && r.holders.some((h) => h.equals(me)));
+          if (inMatch && !rtRef.current[who].matches.length && !rtRef.current[who].busy) void refresh(who);
+        }
       } catch { /* keep the last good view; the panes surface errors */ }
     };
     void load();
     const t = setInterval(load, POLL_MS);
     return () => { alive = false; clearInterval(t); };
-  }, [ids, epoch, indices]);
+  }, [ids, epoch, indices, refresh]);
 
   if (!ids) return null;
   const hit = rows.find((r) => r.holders.length > 1);
@@ -97,7 +108,9 @@ function Pane({ who }: { who: Who }) {
   const name = who === 'a' ? 'Browser A · you' : 'Browser B · relative';
 
   let action = null;
-  if (r.balance !== null && r.balance < 0.1 && !r.registered) {
+  if (r.registered && !r.rootMatches) {
+    action = <div className="notice info">This account registered a different genome. Upload the same DNA file again, or reset the demo.</div>;
+  } else if (r.balance !== null && r.balance < 0.1 && !r.registered) {
     action = <button type="button" className="btn btn-secondary btn-compact" onClick={() => fund(who)} disabled={!!r.busy}>{r.busy ?? 'Fund'}</button>;
   } else if (r.registered === false) {
     action = <button type="button" className="btn btn-primary btn-compact" onClick={() => register(who)} disabled={!!r.busy}>{r.busy ?? 'Register genome'}</button>;
@@ -119,6 +132,7 @@ function Pane({ who }: { who: Who }) {
         <div className="big">{name}</div>
         <div className="mono label">{short(id.keypair.publicKey.toBase58())}</div>
       </div>
+      <DnaSource who={who} compact />
       <SegmentGrid small states={states} label={`${name}: ${posted.size} segments published, ${matched.size} shared`} />
       <div className="legend" style={{ flexDirection: 'column', gap: 10 }}>
         <span><Swatch color="var(--green)" />Shared stretch — highlighted only on this device</span>

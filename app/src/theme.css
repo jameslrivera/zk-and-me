@@ -158,3 +158,11 @@ button { font-family: inherit; }
   .grid16 { gap: 3px; }
   .cell { height: 18px; }
 }
+
+.dna-source { display: flex; flex-direction: column; gap: 8px; }
+.dna-source-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.dna-source-head .btn { width: auto; flex: none; }
+.dna-source-head > div { min-width: 0; overflow-wrap: anywhere; }
+.dna-source .note { margin: 0; }
+.dna-source a { color: var(--green); }
+.dna-source.compact { padding-bottom: 12px; border-bottom: 1px solid var(--line); }

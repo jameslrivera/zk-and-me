@@ -3,6 +3,7 @@ import { short, shortHex, toBE32 } from '../lib/field';
 import { SEGMENT_COUNT, WINDOW } from '../lib/genome';
 import { useSession } from '../lib/session';
 import { Check, ErrorNotice, Lock, SegmentGrid } from '../components/ui';
+import { DnaSource } from '../components/DnaSource';
 
 const MIN_SOL = 0.2;
 
@@ -17,7 +18,7 @@ export function GenomeScreen() {
   if (!r.rootMatches) {
     action = (
       <button type="button" className="btn btn-secondary" onClick={reset}>
-        Start a new session<small>This account holds a different genome</small>
+        Start a new session<small>Or upload the same DNA file again</small>
       </button>
     );
   } else if (r.balance !== null && r.balance < MIN_SOL && !r.registered) {
@@ -63,6 +64,8 @@ export function GenomeScreen() {
       </section>
 
       <aside className="stack">
+        <div className="card"><DnaSource who="a" /></div>
+
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div className="label">Lab attestation</div>

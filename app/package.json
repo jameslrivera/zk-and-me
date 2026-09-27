@@ -11,7 +11,8 @@
     "sync-idl": "cp ../target/idl/zk_genome.json src/idl/zk_genome.json",
     "sync-circuit": "cp ../build/segment_js/segment.wasm public/circuits/ && cp ../build/segment_final.zkey public/circuits/",
     "register-lab": "tsx scripts/register-lab.ts",
-    "test:circuit": "tsx circuit-tests/witness.test.mts && tsx circuit-tests/prove.test.mts"
+    "test:circuit": "tsx circuit-tests/witness.test.mts && tsx circuit-tests/prove.test.mts && tsx circuit-tests/dnafile.test.mts",
+    "make-samples": "tsx scripts/make-samples.ts"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.31.1",

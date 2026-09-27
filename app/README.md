@@ -41,6 +41,12 @@ Re-run `sync-idl` after every `anchor build` and `sync-circuit` after every circ
 - Burners live in `sessionStorage`. **Reset demo** starts fresh keys and genomes.
 - `VITE_DEMO_FUNDER_SECRET` ships to the browser. Devnet only.
 
+## Sample DNA files
+
+`public/sample-dna/` holds three synthetic DNA files in the tab-separated raw-data format (rsid, chromosome, position, genotype): `cousin-a.txt`, `cousin-b.txt` and `stranger.txt`. The cousins share segments 40–42; the stranger shares nothing. The site serves them for download, and each identity can load one with **Upload DNA file**. The file is read in the browser and never uploaded.
+
+They are not real DNA. The app only reads its own 2,048-marker demo panel (`src/lib/dnaFile.ts`), so a real consumer DNA file is rejected. Regenerate them with `npm run make-samples`.
+
 ## Circuit tests
 
 After `../scripts/build-circuit.sh`, run `npm run test:circuit`. It checks valid proofs for both relatives, twelve adversarial inputs the circuit must reject or accept, public-signal order, and replays groth16-solana's pairing check on the exact bytes this app sends — so an encoding mistake shows up here, not as a silent `InvalidProof` on devnet.

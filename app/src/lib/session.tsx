@@ -6,6 +6,7 @@ import {
   type Identity, type Match,
 } from './chain';
 import { config } from './config';
+import { parseDnaFile } from './dnaFile';
 import { buildGenome, publishIndices, syntheticRelatives } from './genome';
 
 export type Who = 'a' | 'b';
@@ -23,12 +24,13 @@ export interface Runtime {
   matches: Match[];
   consent: Record<string, { me: boolean; them: boolean }>;
   busy: string | null;       // what the identity is doing right now, in words
+  source: string | null;     // file the genome was read from; null when generated
   error: string | null;
 }
 
 const emptyRuntime = (): Runtime => ({
   balance: null, registered: null, rootMatches: true, epoch: null, posted: [], proving: null,
-  log: [], matches: [], consent: {}, busy: null, error: null,
+  log: [], matches: [], consent: {}, busy: null, error: null, source: null,
 });
 
 interface SessionApi {
@@ -42,6 +44,7 @@ interface SessionApi {
   register: (who: Who) => Promise<void>;
   publish: (who: Who) => Promise<void>;
   allowContact: (who: Who, counterparty: PublicKey) => Promise<void>;
+  loadFile: (who: Who, file: File) => Promise<void>;
   reset: () => void;
 }
 
@@ -179,12 +182,22 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }
   }), [run, patch]);
 
+  // replace an identity's genome with one read from a DNA file; the file stays in memory only
+  const loadFile = useCallback((who: Who, file: File) => run(who, 'Reading file', async (id) => {
+    const { markers } = parseDnaFile(await file.text());
+    const next = makeIdentity(id.label, id.keypair, await buildGenome(markers));
+    idsRef.current = { ...idsRef.current!, [who]: next };
+    setIds(idsRef.current);
+    patch(who, { source: file.name, posted: [], matches: [], consent: {}, log: [] });
+    await refresh(who);
+  }), [run, patch, refresh]);
+
   const reset = useCallback(() => {
     sessionStorage.removeItem(KEY);
     window.location.reload();
   }, []);
 
-  const api: SessionApi = { ready: !!ids, bootError, ids, rt, indices, refresh, fund, register, publish, allowContact, reset };
+  const api: SessionApi = { ready: !!ids, bootError, ids, rt, indices, refresh, fund, register, publish, allowContact, loadFile, reset };
   return <Ctx.Provider value={api}>{children}</Ctx.Provider>;
 }
 
