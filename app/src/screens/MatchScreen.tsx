@@ -21,8 +21,7 @@ export function MatchScreen() {
           <div className="label">Matches</div>
           <h1 className="h1">No matches yet.</h1>
           <p className="lead">
-            A match appears when a relative publishes the same inherited segment you did. In this demo, publish the
-            relative's side from the live demo, then check again.
+            A match appears when a relative publishes the same segment of DNA as you. Then press Check again.
           </p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <a className="btn btn-primary btn-compact" style={{ width: 'auto' }} href="#demo">Open the live demo</a>
@@ -42,7 +41,7 @@ export function MatchScreen() {
       <section className="card hero" style={{ gap: 32 }}>
         <div className="stack" style={{ gap: 14 }}>
           <div className="label green">Match{r.epoch !== null ? `, epoch ${r.epoch}` : ''}</div>
-          <h1 className="h1" style={{ maxWidth: '18ch' }}>You share inherited segments with another account.</h1>
+          <h1 className="h1" style={{ maxWidth: '18ch' }}>You share segments of DNA with another account.</h1>
         </div>
         <div className="stats">
           <div className="stat accent"><span>Shared segments</span><span className="v">{m.indices.length} of {indices.length}</span></div>
