@@ -1,0 +1,580 @@
+{
+  "address": "9q6kP67QT8gwSwszckPaU1b9wvV1qMjzLJg3C1NwRDtP",
+  "metadata": {
+    "name": "zk_genome",
+    "version": "0.1.0",
+    "spec": "0.1.0"
+  },
+  "instructions": [
+    {
+      "name": "consent",
+      "discriminator": [
+        8,
+        79,
+        94,
+        254,
+        228,
+        237,
+        206,
+        72
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "consent",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  115,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "a"
+              },
+              {
+                "kind": "arg",
+                "path": "b"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "a",
+          "type": "pubkey"
+        },
+        {
+          "name": "b",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "post_token",
+      "discriminator": [
+        81,
+        237,
+        164,
+        4,
+        178,
+        111,
+        69,
+        109
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "genome_profile",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  101,
+                  110,
+                  111,
+                  109,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "lab"
+        },
+        {
+          "name": "token_entry",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "proof_a",
+          "type": {
+            "array": [
+              "u8",
+              64
+            ]
+          }
+        },
+        {
+          "name": "proof_b",
+          "type": {
+            "array": [
+              "u8",
+              128
+            ]
+          }
+        },
+        {
+          "name": "proof_c",
+          "type": {
+            "array": [
+              "u8",
+              64
+            ]
+          }
+        },
+        {
+          "name": "public_inputs",
+          "type": {
+            "array": [
+              {
+                "array": [
+                  "u8",
+                  32
+                ]
+              },
+              6
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "register_genome",
+      "discriminator": [
+        24,
+        106,
+        206,
+        180,
+        184,
+        134,
+        52,
+        152
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "lab"
+        },
+        {
+          "name": "genome_profile",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  101,
+                  110,
+                  111,
+                  109,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "root",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "register_lab",
+      "discriminator": [
+        246,
+        33,
+        154,
+        63,
+        92,
+        59,
+        234,
+        28
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "address": "9vtqstu6MWVkJyE9988XNQqgGo5ga3pDjp9CNw77iU8A"
+        },
+        {
+          "name": "lab",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  97,
+                  98
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "authority"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "pub_x",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "pub_y",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Consent",
+      "discriminator": [
+        2,
+        14,
+        104,
+        76,
+        209,
+        11,
+        26,
+        235
+      ]
+    },
+    {
+      "name": "GenomeProfile",
+      "discriminator": [
+        190,
+        239,
+        54,
+        221,
+        134,
+        25,
+        90,
+        165
+      ]
+    },
+    {
+      "name": "Lab",
+      "discriminator": [
+        238,
+        80,
+        146,
+        49,
+        216,
+        167,
+        224,
+        7
+      ]
+    },
+    {
+      "name": "TokenEntry",
+      "discriminator": [
+        3,
+        71,
+        39,
+        126,
+        88,
+        117,
+        89,
+        51
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "ContactUnlocked",
+      "discriminator": [
+        97,
+        206,
+        253,
+        87,
+        83,
+        245,
+        31,
+        36
+      ]
+    },
+    {
+      "name": "SegmentMatch",
+      "discriminator": [
+        150,
+        178,
+        12,
+        15,
+        244,
+        152,
+        123,
+        25
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "RootMismatch",
+      "msg": "Merkle root does not match the registered profile."
+    },
+    {
+      "code": 6001,
+      "name": "UnknownLab",
+      "msg": "Lab is not registered or does not match the profile."
+    },
+    {
+      "code": 6002,
+      "name": "StaleEpoch",
+      "msg": "Proof is for an epoch that is no longer accepted."
+    },
+    {
+      "code": 6003,
+      "name": "NotOwner",
+      "msg": "Caller does not own this profile."
+    },
+    {
+      "code": 6004,
+      "name": "NotParty",
+      "msg": "Caller is not a party to this consent record."
+    },
+    {
+      "code": 6005,
+      "name": "TokenFull",
+      "msg": "This token already has the maximum holders."
+    },
+    {
+      "code": 6006,
+      "name": "AlreadyPosted",
+      "msg": "This user already posted this token."
+    },
+    {
+      "code": 6007,
+      "name": "ProofParsingFailed",
+      "msg": "Proof could not be parsed."
+    },
+    {
+      "code": 6008,
+      "name": "InvalidProof",
+      "msg": "Proof is invalid."
+    },
+    {
+      "code": 6009,
+      "name": "NotAdmin",
+      "msg": "Only the admin can register a lab."
+    }
+  ],
+  "types": [
+    {
+      "name": "Consent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "a",
+            "type": "pubkey"
+          },
+          {
+            "name": "b",
+            "type": "pubkey"
+          },
+          {
+            "name": "a_ok",
+            "type": "bool"
+          },
+          {
+            "name": "b_ok",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ContactUnlocked",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "a",
+            "type": "pubkey"
+          },
+          {
+            "name": "b",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "GenomeProfile",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "merkle_root",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "lab",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Lab",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "pub_x",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "pub_y",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "SegmentMatch",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "token",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "holders",
+            "type": {
+              "vec": "pubkey"
+            }
+          },
+          {
+            "name": "epoch",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "TokenEntry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "token",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "holders",
+            "type": {
+              "vec": "pubkey"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

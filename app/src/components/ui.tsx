@@ -16,7 +16,7 @@ export function Header({ route }: { route: Route }) {
   return (
     <header className="header">
       <div className="header-left">
-        <a className="wordmark" href="#genome"><span>zk</span> and me</a>
+        <a className="wordmark" href="#genome"><img src="/favicon.svg" alt="" width="30" height="30" /><span>zk</span> and me</a>
         <nav className="nav" aria-label="Main">
           {link('genome', 'Your genome')}
           {link('match', 'Matches')}
